@@ -45,20 +45,24 @@
     </div>
 
     <script>
-        function luhnAppend(imei) {
-            let sum = 0;
-            for (let i = 0; i < imei.length; i++) {
-                let digit = parseInt(imei[i], 10);
-                if (i % 2 === imei.length % 2) {
-                    digit *= 2;
-                    if (digit > 9) {
-                        digit -= 9;
-                    }
-                }
-                sum += digit;
-            }
-            let checksum = (10 - (sum % 10)) % 10;
-            return imei + checksum.toString();
+        function checksum(string) {
+            let digits = Array.from(string, Number);
+            let oddSum = digits.reverse().filter((_, idx) => idx % 2 === 0).reduce((acc, val) => acc + val, 0);
+            let evenSum = digits.filter((_, idx) => idx % 2 === 1).reduce((acc, val) => acc + sumDigits(val * 2), 0);
+            return (oddSum + evenSum) % 10;
+        }
+
+        function sumDigits(num) {
+            return Math.floor(num / 10) + (num % 10);
+        }
+
+        function generate(string) {
+            let cksum = checksum(string + '0');
+            return (10 - cksum) % 10;
+        }
+
+        function append(string) {
+            return string + generate(string).toString();
         }
 
         function splitIntoPairs(imei) {
@@ -71,11 +75,11 @@
 
         function processImei() {
             let imei = document.getElementById('imeiInput').value;
-            if (imei.length !== 15) {
-                alert("IMEI must be 15 digits long before the checksum is appended.");
+            if (imei.length !== 14) {
+                alert("IMEI must be 14 digits long before the checksum is appended.");
                 return;
             }
-            let fullImei = luhnAppend(imei);
+            let fullImei = append(imei);
             let encryptImei = splitIntoPairs(fullImei);
             let encryptImeiWrite = "AT!NVENCRYPTIMEI=" + encryptImei + "\r\n";
             document.getElementById('output').innerText = encryptImeiWrite;
