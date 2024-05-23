@@ -75,10 +75,6 @@
 
         function processImei() {
             let imei = document.getElementById('imeiInput').value;
-            if (imei.length !== 14) {
-                alert("IMEI must be 14 digits long before the checksum is appended.");
-                return;
-            }
             let fullImei = append(imei);
             let encryptImei = splitIntoPairs(fullImei);
             let encryptImeiWrite = "AT!NVENCRYPTIMEI=" + encryptImei + "\r\n";
