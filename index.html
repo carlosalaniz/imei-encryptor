@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IMEI Encryptor</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        .container {
+            max-width: 500px;
+            margin: auto;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        input, button {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            box-sizing: border-box;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>IMEI Encryptor</h2>
+        <label for="imeiInput">Enter IMEI:</label>
+        <input type="text" id="imeiInput" placeholder="Enter IMEI number">
+        <button onclick="processImei()">Encrypt IMEI</button>
+        <h3>Output:</h3>
+        <p id="output"></p>
+    </div>
+
+    <script>
+        function luhnAppend(imei) {
+            let sum = 0;
+            for (let i = 0; i < imei.length; i++) {
+                let digit = parseInt(imei[i], 10);
+                if (i % 2 === imei.length % 2) {
+                    digit *= 2;
+                    if (digit > 9) {
+                        digit -= 9;
+                    }
+                }
+                sum += digit;
+            }
+            let checksum = (10 - (sum % 10)) % 10;
+            return imei + checksum.toString();
+        }
+
+        function splitIntoPairs(imei) {
+            let result = [];
+            for (let i = 0; i < imei.length; i += 2) {
+                result.push(imei.slice(i, i + 2));
+            }
+            return result.join(',');
+        }
+
+        function processImei() {
+            let imei = document.getElementById('imeiInput').value;
+            if (imei.length !== 14) {
+                alert("IMEI must be 14 digits long before the checksum is appended.");
+                return;
+            }
+            let fullImei = luhnAppend(imei);
+            let encryptImei = splitIntoPairs(fullImei);
+            let encryptImeiWrite = "AT!NVENCRYPTIMEI=" + encryptImei + "\r\n";
+            document.getElementById('output').innerText = encryptImeiWrite;
+        }
+    </script>
+</body>
+</html>
